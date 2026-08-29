@@ -1,5 +1,6 @@
 export type ApiPostMethods = "POST" | "PUT" | "DELETE";
 export type validateErrrors = Partial<Record<keyof IUser, string>>;
+export type TPayment = "card" | "cash";
 
 export interface IApi {
   get<T extends object>(uri: string): Promise<T>;
@@ -20,7 +21,7 @@ export interface IItem {
 }
 
 export interface IUser {
-  payment: "card" | "cash" | "";
+  payment: TPayment | "";
   address: string;
   email: string;
   phone: string;

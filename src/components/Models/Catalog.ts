@@ -19,7 +19,7 @@ export class Catalog {
     return this.allItems.find((item) => item.id === id);
   }
 
-  setItem(item: IItem | null): void {
+  setItem(item: IItem): void {
     this.selectedItem = item;
   }
 

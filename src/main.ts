@@ -10,6 +10,9 @@ import { API_URL, CDN_URL } from "./utils/constants";
 const catalogModel = new Catalog();
 catalogModel.setItems(apiProducts.items);
 console.log(`Массив товаров из каталога: `, catalogModel.getItems());
+catalogModel.setItem(apiProducts.items[3]);
+console.log(`Выбранный товар:`, catalogModel.getItem());
+console.log(`Товар с id:`, apiProducts.items[2].id, catalogModel.getItemById(apiProducts.items[2].id));
 
 const cartModel = new Cart();
 cartModel.addSelectedItem(apiProducts.items[0]);
@@ -20,6 +23,13 @@ console.log(
   `шт. товаров, на сумму:`,
   cartModel.getTotal(),
 );
+cartModel.deleteSelectedItem(apiProducts.items[0].id);
+console.log(
+  `В корзине есть товар с id:`, apiProducts.items[0].id, `?`,
+  cartModel.isPresent(apiProducts.items[0].id)
+);
+cartModel.clearCart();
+console.log(`Корзина:`, cartModel.getSelectedItems())
 
 const userModel = new User();
 userModel.setAdress("г.Хабаровск ул.Ленина");
@@ -27,6 +37,9 @@ userModel.setPayment("card");
 userModel.setPhone("8 800 555 35 35");
 console.log(`Данные пользователя:`, userModel.getCustomerData());
 console.log(`Нашли ошибки:`, userModel.validateCustomerData());
+userModel.clearCustomerData();
+userModel.setEmail("google@gmail.com")
+console.log(`Данные пользователя:`, userModel.getCustomerData());
 
 const baseApi = new Api(API_URL);
 const tryRequest = new ApiRequest(baseApi);

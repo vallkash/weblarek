@@ -1,4 +1,4 @@
-import { IUser, validateErrrors } from "../../types";
+import { IUser, validateErrrors, TPayment } from "../../types";
 
 export class User {
   protected customer: IUser = {
@@ -10,7 +10,7 @@ export class User {
 
   constructor() {}
 
-  setPayment(payment: "card" | "cash" | ""): void {
+  setPayment(payment: TPayment | ""): void {
     this.customer.payment = payment;
   }
 
