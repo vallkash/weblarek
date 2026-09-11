@@ -234,85 +234,116 @@ Presenter - презентер содержит основную логику п
 Методы:
 `set items(items: HTMLElement[])` - устанавливает массив товаров к отображению.
 `set price(value: number)` - устанавливает общую стоимость заказа.
-`set disabled(value: boolean)` - устанавливает состояние кнопки доступна\не доступна
+`set disabled(value: boolean)` - устанавливает состояние кнопки доступна\недоступна
 
 
 #### Класс ModalView
 Класс отвечает за управление модальным окном.
 
 Конструктор:
-`constructor()`
+`constructor(protected container: HTMLElement)` - принимает корневой DOM-элемент где будет отображаться модальное окно
 
 Поля класса:
+`protected closeButton: HTMLButtonElement` - представляет кнопку закрытия модального окна.
 
 Методы:
+`set content(value: HTMLElement)` - устанавливает данные разметки отображаемые в модальном окне.
+`open(): void` - открывает модальное окно.
+`close(): void` - закрывает модальное окно. 
 
 #### Класс Card
 Класс является абстрактным, используется как основа для разного представления карточки товара.
 
 Конструктор:
-`constructor()`
+`constructor(container: HTMLElement)` - принимает корневой DOM-элемент где будет отображаться карточка.
 
 Поля класса:
+`protected titleElement: HTMLElement` - название товара.
+`protected priceElement: HTMLElement` - цена товара.
 
 Методы:
+`set price(value: number | null)` - устанавливает цену товара.
+`set title(value: string)` - устанавливает название товара.
 
 #### Класс Form
 Класс является абстрактным, используется как основа для разного представления формы для получения данных покупателя.
 
 Конструктор:
-`constructor()`
+`constructor(container: HTMLElement)` - принимает корневой DOM-элемент где будет отображаться форма.
 
 Поля класса:
+`protected submitButton: HTMLElement` - кнопка подтверждения/перехода к следующему этапу.
+`protected errorsElement: HTMLElement` - поле вывода ошибок заполнения формы.
 
 Методы:
+`set error(value: string)` - устанавливает описание ошибки ввода данных в форму.
+`set disabled(value: boolean)` - устанавливает состояние кнопки: доступна/недоступна
+
 
 #### Класс CardCatalog
-Класс отвечает за представление карточки товара в каталоге/галерее товаров
+Класс отвечает за представление карточки товара в каталоге/галерее товаров. Наследует абстрактный класс Card.
 
 Конструктор:
-`constructor()`
+`constructor(container: HTMLElement)` - принимает корневой DOM-элемент где будет отображаться карточка.
 
 Поля класса:
+`protected imageElement: HTMLElement` - элемент изображения товара.
+`protected categoryElement: HTMLElement` - элемент категории товара.
 
 Методы:
+`set image(src: string)` - устанавливает новое изображение товара.
+`set category(value: string)` - устанавливает новую категорию товара.
+
 
 #### Класс CardPrewiev
-Класс отвечает за представление карточки товара в модальном окне
+Класс отвечает за представление карточки товара в модальном окне. Наследует абстрактный класс Card.
 
 Конструктор:
-`constructor()`
+`constructor(container: HTMLElement)` - принимает корневой DOM-элемент где будет отображаться карточка.
 
 Поля класса:
+`protected buyButtonElemenet: HTMLButtonElement` - элемент кнопки покупки.
+`protected imageElement: HTMLElement` - элемент изображения товара.
+`protected categoryElement: HTMLElement` - элемент категории товара.
+`protected descriptionElement: HTMLElement` - элемент описаия товара.
 
 Методы:
+`set image(src: string)` - устанавливает новое изображение товара.
+`set category(value: string)` - устанавливает новую категорию товара.
+`set description(value: string)` - устанавливает новое описания товара.
+`set disabled(value: boolean)` - устанавливает состояние кнопки: доступна/недоступна
 
 #### Класс CardBasket
-Класс отвечает за представление карточки товара в корзине
+Класс отвечает за представление карточки товара в корзине. Наследует абстрактный класс Card.
 
 Конструктор:
-`constructor()`
+`constructor(container: HTMLElement)` - принимает корневой DOM-элемент где будет отображаться карточка.
 
 Поля класса:
+`protected indexElement: HTMLElement` - элемент порядкового номера товара в корзине.
 
 Методы:
+`set index(value: number)` - устанавливает порядковый номер товара в корзине.
+
 
 #### Класс PayForm
-Класс отвечает за представление формы с выбором оплаты
+Класс отвечает за представление формы с выбором оплаты. Наследует абстрактный класс Form.
 
 Конструктор:
-`constructor()`
+`constructor(container: HTMLElement)` - принимает корневой DOM-элемент где будет отображаться форма.
 
 Поля класса:
+`protected cardButtonElement: HTMLButtonElement` - элемент кнопки оплаты картой.
+`protected cashButtonElement: HTMLButtonElement` - элемент кпопки оплаты наличными.
+`protected addressElement: HTMLInputElement` - элемент ввода адреса доставки.
 
-Методы:
 
 #### Класс ContactsForm
-Класс отвечает за представление формы для предоставления контактных данных
+Класс отвечает за представление формы для предоставления контактных данных. Наследует абстрактный класс Form.
 
 Конструктор:
-`constructor()`
+`constructor(container: HTMLElement)` - принимает корневой DOM-элемент где будет отображаться форма.
 
 Поля класса:
-
-Методы:
+`protected emailElement: HTMLInputElement` - элемент ввода адреса электронной почты.
+`protected phoneElement: HTMLInputElement` - элемент ввода телефона.
