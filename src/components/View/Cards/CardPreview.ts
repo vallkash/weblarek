@@ -2,6 +2,7 @@ import { Card } from "./Card";
 import { ensureElement } from "../../../utils/utils";
 import { ICard } from "./Card";
 import { CDN_URL, categoryMap} from "../../../utils/constants";
+import { IEvents } from "../../base/Events";
 
 interface ICardPreview extends ICard {
     category: string;
@@ -17,13 +18,24 @@ export class CardPreview extends Card<ICardPreview> {
     protected buyButtonEl: HTMLButtonElement;
     protected descriptionEl: HTMLElement;
 
-    constructor(container: HTMLElement) {
+    constructor(container: HTMLElement, protected events: IEvents) {
         super(container);
 
         this.imageElement = ensureElement<HTMLImageElement>('.card__image', this.container);
         this.categoryElement = ensureElement<HTMLElement>('.card__category', this.container);
         this.descriptionEl = ensureElement<HTMLElement>('.card__text', this.container);
         this.buyButtonEl = ensureElement<HTMLButtonElement>('.card__button', this.container);    
+        
+        this.buyButtonEl.addEventListener('click', () => {
+            if (this.buyButtonEl.textContent === 'В корзину'){
+                this.events.emit('card: bought');
+                this.buttonText = this.buyButtonEl.textContent = 'Удалить из корзины';
+                this.disabled = true;
+            } else {
+                this.events.emit('card: deleted');
+            }
+        })
+       
     }
     
     protected setImage(element: HTMLImageElement, src: string, alt?: string): void {

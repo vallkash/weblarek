@@ -1,9 +1,10 @@
 import { IItem } from "../../types";
+import { IEvents } from "../base/Events";
 
 export class Cart {
   protected purchase: IItem[] = [];
 
-  constructor() {}
+  constructor(protected events: IEvents) {}
 
   getSelectedItems(): IItem[] {
     return this.purchase;
@@ -13,14 +14,17 @@ export class Cart {
     if (!this.isPresent(item.id)) {
       this.purchase.push(item);
     }
+    this.events.emit('cart: changed');
   }
 
   deleteSelectedItem(id: string): void {
     this.purchase = this.purchase.filter((item) => item.id !== id);
+    this.events.emit('cart: changed');
   }
 
   clearCart(): void {
     this.purchase = [];
+    this.events.emit('cart: changed');
   }
 
   getTotal(): number {

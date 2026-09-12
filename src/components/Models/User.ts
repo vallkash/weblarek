@@ -1,29 +1,35 @@
 import { IUser, validateErrrors, TPayment } from "../../types";
+import { IEvents } from "../base/Events";
+
 
 export class User {
   protected customer: IUser = {
-    payment: "",
+    payment: null,
     email: "",
     phone: "",
-    address: "",
+    address: ""
   };
 
-  constructor() {}
+  constructor(protected events: IEvents) {}
 
-  setPayment(payment: TPayment | ""): void {
+  setPayment(payment: TPayment | null): void {
     this.customer.payment = payment;
+    this.events.emit('user:changed');
   }
 
   setAdress(address: string): void {
     this.customer.address = address;
+    this.events.emit('user:changed');
   }
 
   setPhone(phone: string): void {
     this.customer.phone = phone;
+    this.events.emit('user:changed');
   }
 
   setEmail(email: string): void {
     this.customer.email = email;
+    this.events.emit('user:changed');
   }
 
   getCustomerData(): IUser {
@@ -31,10 +37,11 @@ export class User {
   }
 
   clearCustomerData(): void {
-    this.customer.payment = "";
+    this.customer.payment = null;
     this.customer.address = "";
     this.customer.phone = "";
     this.customer.email = "";
+    this.events.emit('user:changed');
   }
 
   validateCustomerData(): validateErrrors {

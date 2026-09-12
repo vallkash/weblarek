@@ -1,5 +1,6 @@
 import { Form, IForm } from "./Form";
 import { ensureElement} from "../../../utils/utils";
+import { IEvents } from "../../base/Events";
 
 interface IContactsForm extends IForm {
     email: string;
@@ -9,11 +10,30 @@ interface IContactsForm extends IForm {
 export class ContactsForm extends Form<IContactsForm> {
     protected emailElement: HTMLInputElement;
     protected phoneElement: HTMLInputElement;
+    protected payButtonEl: HTMLButtonElement;
 
-    constructor(container: HTMLElement) {
+    constructor(protected container: HTMLElement, protected events: IEvents) {
         super(container);
         this.emailElement = ensureElement<HTMLInputElement>('input[name="email"]', this.container);
         this.phoneElement = ensureElement<HTMLInputElement>('input[name="phone"]', this.container);
+        this.payButtonEl = ensureElement<HTMLButtonElement>('button[type="submit"]', this.container);
+    
+        this.payButtonEl.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.events.emit('form: finished');
+        })
+        this.emailElement.addEventListener('input', () => {
+            this.events.emit('form: changed', {
+                field: 'email',
+                value: this.emailElement.value
+            })
+        });
+        this.phoneElement.addEventListener('input', () => {
+            this.events.emit('form: changed', {
+                field: 'phone',
+                value: this.phoneElement.value
+            })
+        });
     }
 
     setData(data: Partial<IContactsForm>): void {

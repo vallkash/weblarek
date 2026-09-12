@@ -8,11 +8,17 @@ interface IModalView {
 export class ModalView extends Component<IModalView> {
     protected closeButton: HTMLButtonElement;
     protected contentEl: HTMLElement;
+    protected windowEl: HTMLElement;
 
     constructor(protected container: HTMLElement) {
         super(container);
         this.closeButton = ensureElement<HTMLButtonElement>('.modal__close', this.container);
         this.contentEl = ensureElement<HTMLElement>('.modal__content', this.container);
+        this.windowEl = ensureElement<HTMLElement>('.modal__container', this.container);
+
+        this.container.addEventListener('click', this.close.bind(this));
+        this.closeButton.addEventListener('click', this.close.bind(this));
+        this.windowEl.addEventListener('click', (e) => e.stopPropagation());
     }
 
     set content(value: HTMLElement) {
@@ -25,7 +31,6 @@ export class ModalView extends Component<IModalView> {
 
     close() {
         this.container.classList.remove('modal_active');
-        this.contentEl.replaceChildren();
     }
 
     render(data?: IModalView): HTMLElement {

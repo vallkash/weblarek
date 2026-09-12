@@ -36,7 +36,7 @@ export abstract class Card<T extends ICard> extends Component<T> {
     render(data?: T): HTMLElement {
         if (data) {
             this.title = data.title;
-            this.price = data.price
+            this.price = data.price;
         }
         return this.container;
     }

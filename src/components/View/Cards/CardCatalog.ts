@@ -2,6 +2,7 @@ import { Card } from "./Card";
 import { ensureElement } from "../../../utils/utils";
 import { ICard } from "./Card";
 import { CDN_URL, categoryMap} from "../../../utils/constants";
+import { IEvents } from "../../base/Events";
 
 interface ICardCatalog extends ICard {
     category: string;
@@ -11,15 +12,18 @@ interface ICardCatalog extends ICard {
 export class CardCatalog extends Card<ICardCatalog> {
     protected imageElement: HTMLImageElement;
     protected categoryElement: HTMLElement;
+    protected selectButtonEl: HTMLElement;
 
-    constructor(container: HTMLElement) {
+    constructor(protected container: HTMLElement, protected events: IEvents) {
         super(container);
-
         this.imageElement = ensureElement<HTMLImageElement>('.card__image', this.container);
         this.categoryElement = ensureElement<HTMLElement>('.card__category', this.container);
+        this.selectButtonEl = this.container;
+        
+        this.selectButtonEl.addEventListener('click', () => this.events.emit('card: selected', { title: this.titleElement.textContent ?? ''}));
     }
 
-    protected setImage(element: HTMLImageElement, src: string, alt?: string): void {
+    setImage(element: HTMLImageElement, src: string, alt?: string): void {
         if (element) {
             element.src = CDN_URL + src;
             if (alt) {

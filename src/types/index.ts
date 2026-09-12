@@ -21,7 +21,7 @@ export interface IItem {
 }
 
 export interface IUser {
-  payment: TPayment | "";
+  payment: TPayment | null;
   address: string;
   email: string;
   phone: string;
