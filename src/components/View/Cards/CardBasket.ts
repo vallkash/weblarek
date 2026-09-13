@@ -2,7 +2,6 @@ import { ensureElement } from "../../../utils/utils";
 import { Card } from "./Card";
 import { ICard } from "./Card";
 import { IEvents } from "../../base/Events";
-import { getElementData } from "../../../utils/utils";
 
 interface ICardBasket extends ICard {
     index: number;
@@ -19,8 +18,7 @@ export class CardBasket extends Card<ICardBasket> {
         this.indexElement = ensureElement<HTMLElement>('.basket__item-index', container);
     
         this.deleteElement.addEventListener('click', () => {
-            const data = getElementData<{id: string}>(this.container, {id: String})
-            this.events.emit('card: deleted', {id: data.id})
+            this.events.emit('card: deleted', {id: this.id})
         });
     }
 
@@ -32,7 +30,6 @@ export class CardBasket extends Card<ICardBasket> {
         if (data) {
             super.render(data);
             this.index = data.index +1 ;
-            this.container.dataset.id = data.id;
         }
         return this.container;
     }

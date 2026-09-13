@@ -14,22 +14,22 @@ export class User {
 
   setPayment(payment: TPayment | null): void {
     this.customer.payment = payment;
-    this.events.emit('user:changed');
+    this.events.emit('user: changed');
   }
 
   setAdress(address: string): void {
     this.customer.address = address;
-    this.events.emit('user:changed');
+    this.events.emit('user: changed');
   }
 
   setPhone(phone: string): void {
     this.customer.phone = phone;
-    this.events.emit('user:changed');
+    this.events.emit('user: changed');
   }
 
   setEmail(email: string): void {
     this.customer.email = email;
-    this.events.emit('user:changed');
+    this.events.emit('user: changed');
   }
 
   getCustomerData(): IUser {
@@ -41,7 +41,7 @@ export class User {
     this.customer.address = "";
     this.customer.phone = "";
     this.customer.email = "";
-    this.events.emit('user:changed');
+    this.events.emit('user: changed');
   }
 
   validateCustomerData(): validateErrrors {
@@ -53,7 +53,7 @@ export class User {
       errors.address = "Необходимо указать адресс";
     }
     if (!this.customer.phone) {
-      errors.phone = "Необходимо указать адресс";
+      errors.phone = "Необходимо указать телефон";
     }
     if (!this.customer.email) {
       errors.email = "Необходимо указать адресс электронной почты";

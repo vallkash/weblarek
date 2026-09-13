@@ -20,16 +20,12 @@ export class CardCatalog extends Card<ICardCatalog> {
         this.categoryElement = ensureElement<HTMLElement>('.card__category', this.container);
         this.selectButtonEl = this.container;
         
-        this.selectButtonEl.addEventListener('click', () => this.events.emit('card: selected', { title: this.titleElement.textContent ?? ''}));
+        this.selectButtonEl.addEventListener('click', () => this.events.emit('card: selected', {id: this.id}));
     }
 
-    setImage(element: HTMLImageElement, src: string, alt?: string): void {
-        if (element) {
-            element.src = CDN_URL + src;
-            if (alt) {
-                element.alt = alt;
-            }
-        }
+     set image(src: string) {
+        this.imageElement.src = CDN_URL + src;
+        this.imageElement.alt = "";
     }
 
     set category(value: string) {
@@ -45,7 +41,7 @@ export class CardCatalog extends Card<ICardCatalog> {
         if (data) {
             super.render(data);
             this.category = data.category;
-            this.setImage(this.imageElement, data.image, data.title);
+            this.image = data.image;
         }
         return this.container;
     }

@@ -13,16 +13,14 @@ export class PayForm extends Form<IPayForm> {
     protected cardButtonEl: HTMLButtonElement;
     protected cashButtonEl: HTMLButtonElement;
     protected addressElement: HTMLInputElement;
-    protected onwardButtonEl: HTMLButtonElement;
 
     constructor(protected container: HTMLElement, protected events: IEvents) {
         super(container);
         this.cardButtonEl = ensureElement<HTMLButtonElement>('button[name="card"]', this.container);
         this.cashButtonEl = ensureElement<HTMLButtonElement>('button[name="cash"]', this.container);
         this.addressElement = ensureElement<HTMLInputElement>('input[name="address"]', this.container);
-        this.onwardButtonEl = ensureElement<HTMLButtonElement>('.order__button', this.container);
 
-        this.onwardButtonEl.addEventListener('click', (e) => {
+        this.submitButton.addEventListener('click', (e) => {
             e.preventDefault();
             this.events.emit('form: onward')
         });
@@ -43,7 +41,7 @@ export class PayForm extends Form<IPayForm> {
     }
 
     set disabled(value: boolean) {
-        this.onwardButtonEl.disabled = value;
+        this.submitButton.disabled = value;
     }
 
     setData(data: Partial<IPayForm>): void {
@@ -63,7 +61,7 @@ export class PayForm extends Form<IPayForm> {
             if (data.isDisabled === undefined) {
                 data.isDisabled = false;
             }
-            this.onwardButtonEl.disabled = data.isDisabled;
+            this.submitButton.disabled = data.isDisabled;
         }
         return this.container;
     }

@@ -2,10 +2,9 @@ import "./scss/styles.scss";
 import { User } from "./components/Models/User";
 import { Cart } from "./components/Models/Cart";
 import { Catalog } from "./components/Models/Catalog";
-import { apiProducts } from "./utils/data";
 import { ApiRequest } from "./components/ApiRequest";
 import { Api } from "./components/base/Api";
-import { API_URL, CDN_URL } from "./utils/constants";
+import { API_URL} from "./utils/constants";
 import { Gallery } from "./components/View/Gallery";
 import { Header } from "./components/View/Header";
 import { ModalView } from "./components/View/ModalView";
@@ -16,9 +15,9 @@ import { CardPreview } from "./components/View/Cards/CardPreview";
 import { PayForm } from "./components/View/Forms/PayForm";
 import { ContactsForm } from "./components/View/Forms/ContactsForm";
 import { Success } from "./components/View/Forms/Success";
-import { ensureElement, ensureAllElements, cloneTemplate } from "./utils/utils";
+import { ensureElement, cloneTemplate } from "./utils/utils";
 import { EventEmitter } from "./components/base/Events";
-import { IItem, TPayment } from "./types";
+import { TPayment } from "./types";
 
 const events = new EventEmitter();
 
@@ -30,13 +29,30 @@ const baseApi = new Api(API_URL);
 const weblarekApi = new ApiRequest(baseApi);
 
 async function loadProducts() {
-    try {
-        const data = await weblarekApi.getItems();
-        console.log(data);
-        catalogModel.setItems(data.items);
-    } catch (err) {
-        console.error('Ошибка загрузки товаров:', err);
-    }
+  try {
+    const data = await weblarekApi.getItems();
+    catalogModel.setItems(data.items);
+  } catch (err) {
+    console.error('Ошибка загрузки товаров:', err);
+  }
+}
+
+async function sendOrder() {
+  try {
+    const items = cartModel.getSelectedItems().map(item => item.id);
+    const user = userModel.getCustomerData();
+    const result = await weblarekApi.postItems({
+      items: items, 
+      total: cartModel.getTotal(),
+      payment: user.payment,
+      address: user.address,
+      email: user.email,
+      phone: user.phone
+    });
+    return result;
+  } catch (err) {
+    console.error('Ошибка оформления заказа:', err);
+  }
 }
 
 const header = new Header(ensureElement<HTMLElement>('.header'), events);
@@ -73,13 +89,21 @@ events.on('cart: changed', () => {
 
 events.on('user: changed', () => {
   const errors = userModel.validateCustomerData();
-  const errorList = Object.values(errors);
-  payForm.render(userModel.getCustomerData()); 
-  payForm.error = errorList;
-  if (!errors) {
+  payForm.render(userModel.getCustomerData());
+  contactsForm.render(userModel.getCustomerData()); 
+  payForm.error = [errors.payment!, errors.address!];
+  contactsForm.error = [errors.email!, errors.phone!]
+  
+  if (!errors.payment && !errors.address) {
     payForm.disabled = false;
   } else {
     payForm.disabled = true;
+  }
+
+  if (!errors.email && !errors.phone) {
+    contactsForm.disabled = false;
+  } else {
+    contactsForm.disabled = true;
   }
 });
 
@@ -106,30 +130,27 @@ events.on('selectedItem: changed', () => {
     description: item!.description,
     price: item!.price,
     title: item!.title,
-    buttonText,
-    isDisabled
+    buttonText: buttonText,
+    isDisabled: isDisabled,
+    id: item!.id
   });
   modal.open();
 });
 
-events.on('card: selected', (data: { title: string }) => {
-  const allItems = catalogModel.getItems();
-  const title = data.title;
-  const items: IItem[] = allItems.filter(i => i.title === title);
-  catalogModel.setItem(items[0]);
+events.on('card: selected', (data: { id: string}) => {
+  const item = catalogModel.getItemById(data.id);
+  catalogModel.setItem(item!);
 });
 
-events.on('card: bought', () => {
-  
-  const item = catalogModel.getItem();
-  console.log(item);
-   
+events.on('card: bought', (data: {id: string}) => {
+  const item = catalogModel.getItemById(data.id);
   cartModel.addSelectedItem(item!);
   modal.close();
 });
 
 events.on('card: deleted', (data: {id: string}) => {
   cartModel.deleteSelectedItem(data.id);
+  modal.close();
 });
 
 events.on('basket: opened', () => {
@@ -139,21 +160,22 @@ events.on('basket: opened', () => {
 
 events.on('order: issued', () => {
   modal.content = payForm.render();
-  modal.open(); //возможно лишнее т.к. когда событие всегда случается когда модальное окно открыто
 });
 
 events.on('form: onward', () => {
   modal.content = contactsForm.render();
-  modal.open(); //возможно лишнее т.к. когда событие всегда случается когда модальное окно открыто
 });
 
 events.on('form: finished', () => {
-  modal.content = success.render();
-  modal.open(); //возможно лишнее т.к. когда событие всегда случается когда модальное окно открыто
+  sendOrder();
+  modal.content = success.render({
+    cost: cartModel.getTotal()
+  });
+  cartModel.clearCart();
 })
 
 events.on('gallery: returned', () => {
-  modal.close;
+  modal.close();
 });
 
 events.on('form: changed', (data: { field: string; value: string }) => {

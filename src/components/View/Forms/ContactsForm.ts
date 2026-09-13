@@ -10,15 +10,14 @@ interface IContactsForm extends IForm {
 export class ContactsForm extends Form<IContactsForm> {
     protected emailElement: HTMLInputElement;
     protected phoneElement: HTMLInputElement;
-    protected payButtonEl: HTMLButtonElement;
 
     constructor(protected container: HTMLElement, protected events: IEvents) {
         super(container);
         this.emailElement = ensureElement<HTMLInputElement>('input[name="email"]', this.container);
         this.phoneElement = ensureElement<HTMLInputElement>('input[name="phone"]', this.container);
-        this.payButtonEl = ensureElement<HTMLButtonElement>('button[type="submit"]', this.container);
+        
     
-        this.payButtonEl.addEventListener('click', (e) => {
+        this.submitButton.addEventListener('click', (e) => {
             e.preventDefault();
             this.events.emit('form: finished');
         })

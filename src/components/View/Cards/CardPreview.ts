@@ -28,23 +28,17 @@ export class CardPreview extends Card<ICardPreview> {
         
         this.buyButtonEl.addEventListener('click', () => {
             if (this.buyButtonEl.textContent === 'В корзину'){
-                this.events.emit('card: bought');
-                this.buttonText = this.buyButtonEl.textContent = 'Удалить из корзины';
-                this.disabled = true;
+                this.events.emit('card: bought', { id: this.id });
             } else {
-                this.events.emit('card: deleted');
+                this.events.emit('card: deleted', { id: this.id });
             }
         })
        
     }
     
-    protected setImage(element: HTMLImageElement, src: string, alt?: string): void {
-        if (element) {
-            element.src = CDN_URL + src;
-            if (alt) {
-                element.alt = alt;
-            }
-        }
+    set image(src: string) {
+        this.imageElement.src = CDN_URL + src;
+        this.imageElement.alt = "";
     }
 
     set category(value: string) {
@@ -73,6 +67,9 @@ export class CardPreview extends Card<ICardPreview> {
             super.render(data);
             this.description = data.description;
             this.buyButtonEl.disabled = data.isDisabled;
+            this.image = data.image;
+            this.buttonText = data.buttonText;
+            this.disabled = data.isDisabled;
         }
         return this.container;
     }

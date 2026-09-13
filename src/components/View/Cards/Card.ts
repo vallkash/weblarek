@@ -4,11 +4,13 @@ import { ensureElement } from "../../../utils/utils";
 export interface ICard {
     title: string;
     price: number | null;
+    id: string;
 }
 
 export abstract class Card<T extends ICard> extends Component<T> {
     protected titleElement: HTMLElement;
     protected priceElement: HTMLElement;
+     protected id: string = '';
 
     constructor(container: HTMLElement) {
         super(container);
@@ -24,19 +26,11 @@ export abstract class Card<T extends ICard> extends Component<T> {
         this.titleElement.textContent = value;
     }
 
-    protected setImage(element: HTMLImageElement, src: string, alt?: string) {
-        if (element) {
-            element.src = src;
-            if (alt) {
-                element.alt = alt;
-            }
-        }
-    }
-
     render(data?: T): HTMLElement {
         if (data) {
             this.title = data.title;
             this.price = data.price;
+            this.id = data.id;
         }
         return this.container;
     }
