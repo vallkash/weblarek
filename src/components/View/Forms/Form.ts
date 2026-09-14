@@ -18,7 +18,7 @@ export abstract class Form<T extends IForm> extends Component<T> {
     abstract setData(data: Partial<T>): void;
 
     set error(value:string[]) {
-        this.errorsElement.textContent = value.join(' ');
+        this.errorsElement.textContent = value.join(', ');
     };
 
     set disabled(value: boolean) {

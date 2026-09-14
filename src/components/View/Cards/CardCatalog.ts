@@ -14,13 +14,13 @@ export class CardCatalog extends Card<ICardCatalog> {
     protected categoryElement: HTMLElement;
     protected selectButtonEl: HTMLElement;
 
-    constructor(protected container: HTMLElement, protected events: IEvents) {
+    constructor(protected container: HTMLElement, protected onSelect: () => void) {
         super(container);
         this.imageElement = ensureElement<HTMLImageElement>('.card__image', this.container);
         this.categoryElement = ensureElement<HTMLElement>('.card__category', this.container);
         this.selectButtonEl = this.container;
         
-        this.selectButtonEl.addEventListener('click', () => this.events.emit('card: selected', {id: this.id}));
+        this.selectButtonEl.addEventListener('click', () => this.onSelect());
     }
 
      set image(src: string) {

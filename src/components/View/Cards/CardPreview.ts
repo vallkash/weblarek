@@ -27,11 +27,7 @@ export class CardPreview extends Card<ICardPreview> {
         this.buyButtonEl = ensureElement<HTMLButtonElement>('.card__button', this.container);    
         
         this.buyButtonEl.addEventListener('click', () => {
-            if (this.buyButtonEl.textContent === 'В корзину'){
-                this.events.emit('card: bought', { id: this.id });
-            } else {
-                this.events.emit('card: deleted', { id: this.id });
-            }
+            this.events.emit('preview: clicked', { id: this.id });
         })
        
     }
@@ -70,6 +66,7 @@ export class CardPreview extends Card<ICardPreview> {
             this.image = data.image;
             this.buttonText = data.buttonText;
             this.disabled = data.isDisabled;
+            this.category = data.category;
         }
         return this.container;
     }

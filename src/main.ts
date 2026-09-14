@@ -38,21 +38,44 @@ async function loadProducts() {
 }
 
 async function sendOrder() {
-  try {
-    const items = cartModel.getSelectedItems().map(item => item.id);
-    const user = userModel.getCustomerData();
-    const result = await weblarekApi.postItems({
-      items: items, 
-      total: cartModel.getTotal(),
-      payment: user.payment,
-      address: user.address,
-      email: user.email,
-      phone: user.phone
+ 
+}
+
+type ModalContent = 'preview' | 'basket' | 'order' | 'contacts' | 'success' | null;
+let currentModalContent: ModalContent = null;
+
+function renderPreview(): void {
+    const item = catalogModel.getItem();
+    if (!item) return;
+
+    const cardPreview = new CardPreview(
+        cloneTemplate<HTMLElement>('#card-preview'),
+        events
+    );
+
+    let buttonText: string;
+    let isDisabled: boolean;
+
+    if (item.price === null) {
+        buttonText = 'Недоступно';
+        isDisabled = true;
+    } else if (cartModel.isPresent(item.id)) {
+        buttonText = 'Удалить из корзины';
+        isDisabled = false;
+    } else {
+        buttonText = 'В корзину';
+        isDisabled = false;
+    }
+
+    modal.content = cardPreview.render({
+        category: item.category,
+        image: item.image,
+        description: item.description,
+        price: item.price,
+        title: item.title,
+        buttonText,
+        isDisabled,
     });
-    return result;
-  } catch (err) {
-    console.error('Ошибка оформления заказа:', err);
-  }
 }
 
 const header = new Header(ensureElement<HTMLElement>('.header'), events);
@@ -66,7 +89,7 @@ const success = new Success(cloneTemplate<HTMLElement>('#success'), events);
 
 events.on('catalog: changed', () => {
   gallery.catalog = catalogModel.getItems().map((item) => {
-    const cardCatalog = new CardCatalog(cloneTemplate<HTMLElement>('#card-catalog'), events);
+    const cardCatalog = new CardCatalog(cloneTemplate<HTMLElement>('#card-catalog'), () => events.emit('card: selected', { id: item.id }));
     return cardCatalog.render(item);
   })
 });
@@ -77,9 +100,9 @@ events.on('cart: changed', () => {
   const items = cartModel.getSelectedItems();
 
   const cards = items.map((item, index) => {
-    const cardBasket = new CardBasket(cloneTemplate<HTMLElement>('#card-basket'), events);
+    const cardBasket = new CardBasket(cloneTemplate<HTMLElement>('#card-basket'), () => events.emit('card: deleted', { id: item.id }));
     cardBasket.index = index + 1;
-    return cardBasket.render({index, title: item.title, price: item.price, id: item.id});
+    return cardBasket.render({index, title: item.title, price: item.price});
   });
 
   basket.items = cards ;
@@ -91,9 +114,11 @@ events.on('user: changed', () => {
   const errors = userModel.validateCustomerData();
   payForm.render(userModel.getCustomerData());
   contactsForm.render(userModel.getCustomerData()); 
-  payForm.error = [errors.payment!, errors.address!];
-  contactsForm.error = [errors.email!, errors.phone!]
-  
+
+  const errorArPay = [errors.payment!, errors.address!];
+  const errorArContact = [errors.email!, errors.phone!];
+  payForm.error = errorArPay.filter(Boolean);
+  contactsForm.error = errorArContact.filter(Boolean);
   if (!errors.payment && !errors.address) {
     payForm.disabled = false;
   } else {
@@ -108,32 +133,8 @@ events.on('user: changed', () => {
 });
 
 events.on('selectedItem: changed', () => {
-  const item = catalogModel.getItem();
-  const cardPreview = new CardPreview(cloneTemplate<HTMLElement>('#card-preview'), events);
-  
-  let buttonText: string;
-  let isDisabled: boolean;
-  
-  if (item?.price === null) {
-    buttonText = "Недоступно";
-    isDisabled = true;
-  } else if (cartModel.isPresent(item!.id)) {
-    buttonText = "Удалить из корзины";
-    isDisabled = false;
-  } else {
-    buttonText = "В корзину";
-    isDisabled = false;
-  }
-  modal.content = cardPreview.render({
-    category: item!.category,
-    image: item!.image,
-    description: item!.description,
-    price: item!.price,
-    title: item!.title,
-    buttonText: buttonText,
-    isDisabled: isDisabled,
-    id: item!.id
-  });
+  currentModalContent = 'preview';
+  renderPreview();
   modal.open();
 });
 
@@ -142,15 +143,21 @@ events.on('card: selected', (data: { id: string}) => {
   catalogModel.setItem(item!);
 });
 
-events.on('card: bought', (data: {id: string}) => {
-  const item = catalogModel.getItemById(data.id);
-  cartModel.addSelectedItem(item!);
+events.on('preview: clicked', (data: {id: string}) => {
+  const item = catalogModel.getItem();
+  if (!item) return;
+  
+  if (item.price === null) return;
+  if (cartModel.isPresent(item.id)) {
+        cartModel.deleteSelectedItem(item.id);
+    } else {
+        cartModel.addSelectedItem(item);
+    }
   modal.close();
 });
 
 events.on('card: deleted', (data: {id: string}) => {
   cartModel.deleteSelectedItem(data.id);
-  modal.close();
 });
 
 events.on('basket: opened', () => {
@@ -167,11 +174,18 @@ events.on('form: onward', () => {
 });
 
 events.on('form: finished', () => {
-  sendOrder();
-  modal.content = success.render({
-    cost: cartModel.getTotal()
-  });
-  cartModel.clearCart();
+  const items = cartModel.getSelectedItems().map(item => item.id);
+  const user = userModel.getCustomerData();
+  const order = {
+    ...user,
+    total: cartModel.getTotal(),
+    items: items
+  }
+  weblarekApi.postItems(order).then(response => {
+      modal.content = success.render({cost: response.total})
+      cartModel.clearCart();
+      userModel.clearCustomerData();
+    }).catch((err) => console.error('Ошибка оформления заказа:', err));
 })
 
 events.on('gallery: returned', () => {

@@ -4,7 +4,6 @@ import { ensureElement } from "../../../utils/utils";
 export interface ICard {
     title: string;
     price: number | null;
-    id: string;
 }
 
 export abstract class Card<T extends ICard> extends Component<T> {
@@ -30,7 +29,6 @@ export abstract class Card<T extends ICard> extends Component<T> {
         if (data) {
             this.title = data.title;
             this.price = data.price;
-            this.id = data.id;
         }
         return this.container;
     }
